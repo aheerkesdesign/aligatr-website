@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ALIGATR website
 
-## Getting Started
+Next.js App Router site for ALIGATR — allround DJ (House | Hardstyle | Reggaeton).
 
-First, run the development server:
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Production URL (SEO)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Set this in **Vercel → Project → Settings → Environment Variables** (Production):
 
-## Learn More
+```bash
+NEXT_PUBLIC_SITE_URL=https://your-domain.tld
+```
 
-To learn more about Next.js, take a look at the following resources:
+No trailing slash. See [`.env.example`](.env.example). Redeploy after saving.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This powers:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `/robots.txt`
+- `/sitemap.xml`
+- Open Graph / canonical URLs
 
-## Deploy on Vercel
+## Google Search Console (your steps)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Open [Google Search Console](https://search.google.com/search-console) and add your domain (or URL-prefix property).
+2. Verify ownership (DNS TXT at your registrar, or the HTML/meta method Google offers).
+3. Submit sitemap: `https://your-domain.tld/sitemap.xml`
+4. Use **URL inspection** on the homepage → **Request indexing**.
+5. Add the site link to Instagram, SoundCloud, TikTok, and YouTube bios.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Check later with `site:your-domain.tld` in Google. Indexing can take a few days.
+
+## Deploy
+
+Deploy on [Vercel](https://vercel.com). Connect your custom domain in the Vercel project settings.
