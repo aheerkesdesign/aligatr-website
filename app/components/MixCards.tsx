@@ -115,11 +115,11 @@ function getCurrentSound(widget: SoundCloudWidget) {
   });
 }
 
-async function waitForSounds(widget: SoundCloudWidget, attempts = 40) {
+async function waitForSounds(widget: SoundCloudWidget, attempts = 80) {
   for (let i = 0; i < attempts; i++) {
     const sounds = await getSounds(widget);
     if (sounds.length > 0) return sounds;
-    await wait(150);
+    await wait(200);
   }
   return [] as SoundCloudSound[];
 }
@@ -140,8 +140,8 @@ async function hydratePlaylist(widget: SoundCloudWidget) {
 
     widget.skip(index);
     let sound: SoundCloudSound | null = null;
-    for (let attempt = 0; attempt < 12; attempt++) {
-      await wait(120);
+    for (let attempt = 0; attempt < 20; attempt++) {
+      await wait(150);
       sound = await getCurrentSound(widget);
       if (sound?.title) break;
     }
@@ -183,6 +183,7 @@ export default function MixCards() {
   const [durationMs, setDurationMs] = useState(0);
   const [playerDismissed, setPlayerDismissed] = useState(false);
   const [userHasPlayed, setUserHasPlayed] = useState(false);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
 
   const activeTrack =
     playingIndex == null ? null : (tracks[playingIndex] ?? null);
@@ -191,6 +192,15 @@ export default function MixCards() {
     durationMs > 0 ? Math.min(100, (positionMs / durationMs) * 100) : 0;
 
   useEffect(() => {
+    if (iframeLoaded) return;
+    // Safety net if the load event is swallowed (rare with cross-origin iframes).
+    const timer = window.setTimeout(() => setIframeLoaded(true), 4000);
+    return () => window.clearTimeout(timer);
+  }, [iframeLoaded]);
+
+  useEffect(() => {
+    if (!iframeLoaded) return;
+
     let cancelled = false;
     const iframe = iframeRef.current;
     if (!iframe) return;
@@ -210,7 +220,13 @@ export default function MixCards() {
           if (cancelled || started) return;
           started = true;
           try {
-            const sounds = await hydratePlaylist(widget);
+            // Playlist metadata can lag behind READY on a cold SoundCloud load.
+            let sounds: SoundCloudSound[] = [];
+            for (let attempt = 0; attempt < 3; attempt++) {
+              sounds = await hydratePlaylist(widget);
+              if (cancelled || sounds.length) break;
+              await wait(500);
+            }
             if (cancelled) return;
             if (!sounds.length) {
               setStatus("error");
@@ -252,9 +268,10 @@ export default function MixCards() {
           }
         });
 
+        // READY often already fired by the time we bind after iframe onLoad.
         window.setTimeout(() => {
           if (!cancelled) void onReady();
-        }, 600);
+        }, 300);
       } catch {
         if (!cancelled) setStatus("error");
       }
@@ -265,7 +282,7 @@ export default function MixCards() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [iframeLoaded]);
 
   async function toggleTrack(index: number) {
     const widget = widgetRef.current;
@@ -340,6 +357,8 @@ export default function MixCards() {
         ref={iframeRef}
         title="ALIGATR SoundCloud playlist"
         allow="autoplay; encrypted-media"
+        loading="eager"
+        onLoad={() => setIframeLoaded(true)}
         src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(PLAYLIST_URL)}&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false&buying=false&sharing=false&download=false`}
         className="pointer-events-none absolute h-px w-px opacity-0"
         tabIndex={-1}
