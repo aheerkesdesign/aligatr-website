@@ -182,10 +182,11 @@ export default function MixCards() {
   const [positionMs, setPositionMs] = useState(0);
   const [durationMs, setDurationMs] = useState(0);
   const [playerDismissed, setPlayerDismissed] = useState(false);
+  const [userHasPlayed, setUserHasPlayed] = useState(false);
 
   const activeTrack =
     playingIndex == null ? null : (tracks[playingIndex] ?? null);
-  const showPlayer = activeTrack != null && !playerDismissed;
+  const showPlayer = userHasPlayed && activeTrack != null && !playerDismissed;
   const progress =
     durationMs > 0 ? Math.min(100, (positionMs / durationMs) * 100) : 0;
 
@@ -277,11 +278,13 @@ export default function MixCards() {
 
     if (playingIndex === index && !isPlaying) {
       setPlayerDismissed(false);
+      setUserHasPlayed(true);
       widget.play();
       return;
     }
 
     setPlayerDismissed(false);
+    setUserHasPlayed(true);
     widget.skip(index);
     await wait(80);
     widget.play();
@@ -294,7 +297,11 @@ export default function MixCards() {
     const widget = widgetRef.current;
     if (!widget || playingIndex == null) return;
     if (isPlaying) widget.pause();
-    else widget.play();
+    else {
+      setPlayerDismissed(false);
+      setUserHasPlayed(true);
+      widget.play();
+    }
   }
 
   function seekFromClientX(clientX: number) {

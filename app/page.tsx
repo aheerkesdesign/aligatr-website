@@ -275,14 +275,14 @@ export default function Home() {
 
               <div className="mt-10 space-y-5">
                 <a
-                  href="mailto:book@aligatr.com"
+                  href="mailto:aligatr.music@gmail.com"
                   className="group flex flex-col gap-1 border-l-2 border-olive pl-4 transition-colors hover:border-olive-glow"
                 >
                   <span className="text-xs uppercase tracking-[0.2em] text-muted">
                     {t.contact.email}
                   </span>
                   <span className="text-lg text-foreground group-hover:text-olive-glow">
-                    book@aligatr.com
+                    aligatr.music@gmail.com
                   </span>
                 </a>
 

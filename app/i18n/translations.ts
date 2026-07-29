@@ -56,9 +56,9 @@ export const translations = {
     },
     music: {
       eyebrow: "Muziek",
-      title: "Mixes & Sets",
+      title: "Mixen & Sets",
       intro:
-        "Rechtstreeks van SoundCloud — de playlist werkt automatisch bij wanneer er nieuwe mixtapes bijkomen.",
+        "Een selectie van de nieuwste mixen en sets — rechtstreeks te beluisteren.",
       playing: "Speelt",
       ready: "Klaar",
       play: "Speel",
@@ -166,7 +166,7 @@ export const translations = {
       eyebrow: "Music",
       title: "Mixes & Sets",
       intro:
-        "Straight from SoundCloud — the playlist updates automatically when new mixtapes are added.",
+        "A selection of the latest mixes and sets — ready to play.",
       playing: "Playing",
       ready: "Ready",
       play: "Play",
