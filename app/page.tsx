@@ -69,15 +69,6 @@ export default function Home() {
           <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:h-[4.25rem] sm:px-8">
             <a href="#top" className="group flex items-center gap-3">
               <Image
-                src="/logo.jpg"
-                alt=""
-                width={40}
-                height={40}
-                className="h-9 w-9 object-cover sm:h-10 sm:w-10"
-                priority
-                aria-hidden
-              />
-              <Image
                 src="/aligatr-logo-text.svg"
                 alt="ALIGATR"
                 width={190}
@@ -85,6 +76,15 @@ export default function Home() {
                 className="h-6 w-auto sm:h-7"
                 priority
                 unoptimized
+              />
+              <Image
+                src="/aligatr-logo.svg"
+                alt=""
+                width={40}
+                height={40}
+                className="h-9 w-9 object-contain sm:h-10 sm:w-10"
+                priority
+                aria-hidden
               />
             </a>
 

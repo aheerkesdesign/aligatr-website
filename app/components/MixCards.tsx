@@ -181,10 +181,11 @@ export default function MixCards() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [positionMs, setPositionMs] = useState(0);
   const [durationMs, setDurationMs] = useState(0);
+  const [playerDismissed, setPlayerDismissed] = useState(false);
 
   const activeTrack =
     playingIndex == null ? null : (tracks[playingIndex] ?? null);
-  const showPlayer = isPlaying && activeTrack != null;
+  const showPlayer = activeTrack != null && !playerDismissed;
   const progress =
     durationMs > 0 ? Math.min(100, (positionMs / durationMs) * 100) : 0;
 
@@ -225,6 +226,7 @@ export default function MixCards() {
         widget.bind(window.SC.Widget.Events.PLAY, () => {
           if (cancelled) return;
           setIsPlaying(true);
+          setPlayerDismissed(false);
           widget.getCurrentSoundIndex((index) => {
             if (!cancelled) setPlayingIndex(index);
           });
@@ -238,7 +240,6 @@ export default function MixCards() {
         widget.bind(window.SC.Widget.Events.FINISH, () => {
           if (!cancelled) {
             setIsPlaying(false);
-            setPlayingIndex(null);
             setPositionMs(0);
           }
         });
@@ -275,10 +276,12 @@ export default function MixCards() {
     }
 
     if (playingIndex === index && !isPlaying) {
+      setPlayerDismissed(false);
       widget.play();
       return;
     }
 
+    setPlayerDismissed(false);
     widget.skip(index);
     await wait(80);
     widget.play();
@@ -468,12 +471,18 @@ export default function MixCards() {
             <button
               type="button"
               onClick={toggleActive}
-              aria-label={`${t.music.pause} ${activeTrack.title}`}
+              aria-label={isPlaying ? `${t.music.pause} ${activeTrack.title}` : `${t.music.play} ${activeTrack.title}`}
               className="flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center border border-olive bg-olive text-background transition-colors hover:border-olive-glow hover:bg-olive-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive"
             >
-              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden>
-                <path d="M7 5h3.5v14H7V5zm6.5 0H17v14h-3.5V5z" />
-              </svg>
+              {isPlaying ? (
+                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden>
+                  <path d="M7 5h3.5v14H7V5zm6.5 0H17v14h-3.5V5z" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" className="h-5 w-5 translate-x-0.5" fill="currentColor" aria-hidden>
+                  <path d="M8 5.5v13l11-6.5-11-6.5z" />
+                </svg>
+              )}
             </button>
 
             <div className="min-w-0 flex-1">
@@ -488,6 +497,20 @@ export default function MixCards() {
                 {formatDuration(durationMs || activeTrack.durationMs)}
               </p>
             </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                widgetRef.current?.pause();
+                setPlayerDismissed(true);
+              }}
+              aria-label="Close player"
+              className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center text-muted transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive"
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden>
+                <path d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12 5.7 16.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.89a1 1 0 0 0 1.41-1.41L13.41 12l4.89-4.89a1 1 0 0 0 0-1.4z" />
+              </svg>
+            </button>
           </div>
         </div>
       )}
