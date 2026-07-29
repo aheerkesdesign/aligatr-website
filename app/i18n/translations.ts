@@ -87,9 +87,14 @@ export const translations = {
       messagePlaceholder:
         "Locatie, setlengte, sfeer en alles wat ALIGATR moet weten...",
       submit: "VERSTUUR BOEKINGSVERZOEK",
+      submitting: "VERZENDEN...",
       successTitle: "Aanvraag ontvangen",
       successBody:
         "Bedankt voor je bericht. ALIGATR neemt zo snel mogelijk contact op.",
+      errorBody:
+        "Verzenden is niet gelukt. Probeer het opnieuw of neem direct contact op via e-mail.",
+      configError:
+        "Het contactformulier is nog niet gekoppeld. Stel eerst de Formspree endpoint in.",
       eventTypes: [
         "Clubnacht",
         "Festival",
@@ -195,9 +200,14 @@ export const translations = {
       messagePlaceholder:
         "Venue, set length, vibe, and anything else ALIGATR should know...",
       submit: "SEND BOOKING REQUEST",
+      submitting: "SENDING...",
       successTitle: "Request received",
       successBody:
         "Thanks for reaching out. ALIGATR will get back to you soon.",
+      errorBody:
+        "Sending failed. Please try again or reach out directly by email.",
+      configError:
+        "The contact form is not connected yet. Set the Formspree endpoint first.",
       eventTypes: [
         "Club Night",
         "Festival",

@@ -5,15 +5,50 @@ import { useLanguage } from "@/app/i18n/LanguageProvider";
 
 const fieldClass =
   "w-full border border-border bg-surface px-4 py-3 text-[0.95rem] text-foreground outline-none transition-colors placeholder:text-[#6f6f6f] focus:border-olive";
+const FORMSPREE_ENDPOINT = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT?.trim();
 
 export default function ContactForm() {
   const { t } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const c = t.contact;
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSubmitted(true);
+
+    if (!FORMSPREE_ENDPOINT) {
+      setError(c.configError);
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+      formData.append("_subject", "New ALIGATR booking request");
+
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Form submission failed");
+      }
+
+      form.reset();
+      setSubmitted(true);
+    } catch {
+      setError(c.errorBody);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (submitted) {
@@ -99,11 +134,21 @@ export default function ContactForm() {
         />
       </Field>
 
+      {error ? (
+        <div
+          role="alert"
+          className="border border-red-400/30 bg-red-950/20 px-4 py-3 text-sm text-red-100"
+        >
+          {error}
+        </div>
+      ) : null}
+
       <button
         type="submit"
+        disabled={submitting}
         className="w-full border border-olive bg-olive px-6 py-3.5 font-[family-name:var(--font-display)] text-xl tracking-[0.12em] text-background transition-colors hover:border-olive-glow hover:bg-olive-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive sm:w-auto sm:min-w-[220px]"
       >
-        {c.submit}
+        {submitting ? c.submitting : c.submit}
       </button>
     </form>
   );
