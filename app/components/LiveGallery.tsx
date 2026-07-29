@@ -11,8 +11,31 @@ type GalleryItem = {
 
 const SPEED_PX_PER_SEC = 28;
 
+// Fixed box height in px at each breakpoint (matches Tailwind classes below)
+const BOX_H = { sm: 220, md: 280, lg: 340 };
+// Horizontal aspect ratio (width / height) for landscape items
+const LANDSCAPE_RATIO = 440 / 340;
+
 function isVideo(item: GalleryItem) {
   return item.type === "video" || /\.(mp4|webm|ogg)(\?|$)/i.test(item.src);
+}
+
+/** Returns true if the media's natural dimensions are portrait (taller than wide) */
+function detectPortrait(src: string, video: boolean): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (video) {
+      const el = document.createElement("video");
+      el.preload = "metadata";
+      el.onloadedmetadata = () => resolve(el.videoHeight > el.videoWidth);
+      el.onerror = () => resolve(false);
+      el.src = src;
+    } else {
+      const img = new window.Image();
+      img.onload = () => resolve(img.naturalHeight > img.naturalWidth);
+      img.onerror = () => resolve(false);
+      img.src = src;
+    }
+  });
 }
 
 export default function LiveGallery({
@@ -29,8 +52,21 @@ export default function LiveGallery({
   const resumedAtRef = useRef(0);
   const [paused, setPaused] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
+  // portrait[i] = true means item i is portrait orientation
+  const [portrait, setPortrait] = useState<boolean[]>([]);
 
   const loopItems = [...photos, ...photos];
+
+  // Detect orientation for each unique item
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all(
+      photos.map((item) => detectPortrait(item.src, isVideo(item)))
+    ).then((results) => {
+      if (!cancelled) setPortrait(results);
+    });
+    return () => { cancelled = true; };
+  }, [photos]);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -43,16 +79,12 @@ export default function LiveGallery({
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
-
-    const measure = () => {
-      halfWidthRef.current = track.scrollWidth / 2;
-    };
-
+    const measure = () => { halfWidthRef.current = track.scrollWidth / 2; };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(track);
     return () => observer.disconnect();
-  }, [photos]);
+  }, [photos, portrait]);
 
   useEffect(() => {
     if (reduceMotion) return;
@@ -68,12 +100,8 @@ export default function LiveGallery({
         offsetRef.current -= SPEED_PX_PER_SEC * dt;
         const half = halfWidthRef.current;
         if (half > 0) {
-          while (offsetRef.current <= -half) {
-            offsetRef.current += half;
-          }
-          while (offsetRef.current > 0) {
-            offsetRef.current -= half;
-          }
+          while (offsetRef.current <= -half) offsetRef.current += half;
+          while (offsetRef.current > 0) offsetRef.current -= half;
         }
         if (trackRef.current) {
           trackRef.current.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
@@ -126,6 +154,36 @@ export default function LiveGallery({
     setPaused(false);
   }
 
+  /**
+   * Compute inline width style for an item.
+   * Portrait items use a flipped aspect ratio: width = height / LANDSCAPE_RATIO
+   * Landscape items use the normal ratio:       width = height * LANDSCAPE_RATIO
+   * We use the lg breakpoint height (340px) as the reference since CSS handles
+   * the responsive height via Tailwind; the ratio stays the same across breakpoints.
+   */
+  function itemStyle(index: number): React.CSSProperties {
+    // Use portrait array for originals; loop duplicates mirror the same index
+    const origIndex = index % photos.length;
+    const isPortrait = portrait[origIndex] ?? false;
+
+    const ratio = isPortrait ? 1 / LANDSCAPE_RATIO : LANDSCAPE_RATIO;
+
+    return {
+      width: `${BOX_H.lg * ratio}px`,
+    };
+  }
+
+  function itemSizes(index: number) {
+    const origIndex = index % photos.length;
+    const isPortrait = portrait[origIndex] ?? false;
+
+    if (isPortrait) {
+      return "(max-width: 640px) 170px, (max-width: 768px) 216px, 263px";
+    }
+
+    return "(max-width: 640px) 285px, (max-width: 768px) 362px, 440px";
+  }
+
   return (
     <div
       className="relative -mx-5 cursor-grab overflow-hidden active:cursor-grabbing sm:-mx-8"
@@ -148,11 +206,8 @@ export default function LiveGallery({
         {loopItems.map((item, index) => (
           <figure
             key={`${item.src}-${index}`}
-            className={`relative h-[220px] shrink-0 overflow-hidden bg-surface sm:h-[280px] md:h-[340px] ${
-              isVideo(item)
-                ? "w-[340px] sm:w-[440px] md:w-[540px]"
-                : "w-[280px] sm:w-[360px] md:w-[440px]"
-            }`}
+            className="relative h-[220px] shrink-0 overflow-hidden bg-surface sm:h-[280px] md:h-[340px]"
+            style={itemStyle(index)}
           >
             {isVideo(item) ? (
               <video
@@ -170,7 +225,8 @@ export default function LiveGallery({
                 src={item.src}
                 alt={item.alt}
                 fill
-                sizes="(max-width: 640px) 280px, (max-width: 768px) 360px, 440px"
+                sizes={itemSizes(index)}
+                quality={90}
                 className="pointer-events-none select-none object-cover"
                 draggable={false}
               />
