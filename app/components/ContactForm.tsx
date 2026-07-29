@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 import { useLanguage } from "@/app/i18n/LanguageProvider";
 
 const fieldClass =
-  "w-full border border-border bg-surface px-4 py-3 text-[0.95rem] text-foreground outline-none transition-colors placeholder:text-[#6f6f6f] focus:border-olive";
+  "interactive-transition w-full rounded-sm border border-border bg-surface px-4 py-3 text-[0.95rem] text-foreground outline-none placeholder:text-[#6f6f6f] focus:border-olive";
 const FORMSPREE_ENDPOINT = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT?.trim();
 
 export default function ContactForm() {
@@ -55,7 +55,7 @@ export default function ContactForm() {
     return (
       <div
         role="status"
-        className="border border-olive/40 bg-surface-raised p-8 text-center"
+        className="rounded-sm border border-olive/40 bg-surface-raised p-8 text-center"
       >
         <p className="font-[family-name:var(--font-display)] text-3xl tracking-wide text-olive-glow">
           {c.successTitle}
@@ -137,7 +137,7 @@ export default function ContactForm() {
       {error ? (
         <div
           role="alert"
-          className="border border-red-400/30 bg-red-950/20 px-4 py-3 text-sm text-red-100"
+          className="rounded-sm border border-red-400/30 bg-red-950/20 px-4 py-3 text-sm text-red-100"
         >
           {error}
         </div>
@@ -146,7 +146,7 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="w-full border border-olive bg-olive px-6 py-3.5 font-[family-name:var(--font-display)] text-xl tracking-[0.12em] text-background transition-colors hover:border-olive-glow hover:bg-olive-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive sm:w-auto sm:min-w-[220px]"
+        className="interactive-transition w-full rounded-sm border border-olive bg-olive px-6 py-3.5 font-[family-name:var(--font-display)] text-xl tracking-[0.12em] text-background hover:border-olive-glow hover:bg-olive-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto sm:min-w-[220px]"
       >
         {submitting ? c.submitting : c.submit}
       </button>

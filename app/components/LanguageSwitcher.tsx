@@ -1,37 +1,39 @@
 "use client";
 
 import { useLanguage } from "@/app/i18n/LanguageProvider";
-import type { Locale } from "@/app/i18n/translations";
-
-const options: Locale[] = ["nl", "en"];
 
 export default function LanguageSwitcher() {
   const { locale, setLocale, t } = useLanguage();
+  const isEn = locale === "en";
 
   return (
-    <div
-      role="group"
+    <button
+      type="button"
+      role="switch"
+      aria-checked={isEn}
       aria-label={t.lang.label}
-      className="flex items-center border border-border"
+      onClick={() => setLocale(isEn ? "nl" : "en")}
+      className="relative grid h-8 w-[4.75rem] cursor-pointer grid-cols-2 items-center overflow-hidden rounded-sm border border-border bg-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive sm:h-9 sm:w-[5.25rem]"
     >
-      {options.map((option) => {
-        const active = locale === option;
-        return (
-          <button
-            key={option}
-            type="button"
-            onClick={() => setLocale(option)}
-            aria-pressed={active}
-            className={`cursor-pointer px-2.5 py-1.5 text-[0.65rem] font-medium uppercase tracking-[0.18em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive sm:px-3 sm:text-xs ${
-              active
-                ? "bg-olive text-background"
-                : "bg-transparent text-muted hover:text-olive-glow"
-            }`}
-          >
-            {t.lang[option]}
-          </button>
-        );
-      })}
-    </div>
+      <span
+        aria-hidden
+        className="absolute inset-y-0 left-0 w-1/2 rounded-[1px] bg-olive transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+        style={{ transform: isEn ? "translateX(100%)" : "translateX(0%)" }}
+      />
+      <span
+        className={`relative z-10 text-center text-[0.65rem] font-medium uppercase tracking-[0.18em] transition-colors duration-300 sm:text-xs ${
+          isEn ? "text-muted" : "text-background"
+        }`}
+      >
+        {t.lang.nl}
+      </span>
+      <span
+        className={`relative z-10 text-center text-[0.65rem] font-medium uppercase tracking-[0.18em] transition-colors duration-300 sm:text-xs ${
+          isEn ? "text-background" : "text-muted"
+        }`}
+      >
+        {t.lang.en}
+      </span>
+    </button>
   );
 }

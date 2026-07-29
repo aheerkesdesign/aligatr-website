@@ -347,14 +347,14 @@ export default function MixCards() {
       />
 
       {status === "loading" && (
-        <div className="border border-border bg-surface-raised/80 px-6 py-10 text-center text-sm uppercase tracking-[0.18em] text-muted">
+        <div className="rounded-sm border border-border bg-surface-raised/80 px-6 py-10 text-center text-sm tracking-wide text-muted">
           {t.music.loading}
         </div>
       )}
 
       {status === "error" && (
-        <div className="border border-border bg-surface-raised/80 px-6 py-10 text-center">
-          <p className="text-sm uppercase tracking-[0.18em] text-muted">
+        <div className="rounded-sm border border-border bg-surface-raised/80 px-6 py-10 text-center">
+          <p className="text-sm tracking-wide text-muted">
             {t.music.error}
           </p>
           <a
@@ -376,7 +376,7 @@ export default function MixCards() {
             return (
               <li
                 key={mix.id}
-                className="group relative overflow-hidden border border-border bg-surface-raised/80 transition-colors hover:border-olive/50"
+                className="group relative overflow-hidden rounded-sm border border-border bg-surface-raised/80 transition-colors hover:border-olive/50"
               >
                 <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-olive-deep via-olive to-olive-glow" />
                 <div className="flex flex-col gap-5 p-6 pt-8">
@@ -393,7 +393,7 @@ export default function MixCards() {
                       }
                       aria-pressed={playing}
                       onClick={() => void toggleTrack(mix.index)}
-                      className="flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center border border-olive bg-olive text-background transition-all hover:border-olive-glow hover:bg-olive-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive"
+                      className="interactive-transition flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center rounded-sm border border-olive bg-olive text-background hover:border-olive-glow hover:bg-olive-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive"
                     >
                       {playing ? (
                         <span className="flex h-4 items-end gap-1" aria-hidden>
@@ -479,7 +479,7 @@ export default function MixCards() {
               type="button"
               onClick={toggleActive}
               aria-label={isPlaying ? `${t.music.pause} ${activeTrack.title}` : `${t.music.play} ${activeTrack.title}`}
-              className="flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center border border-olive bg-olive text-background transition-colors hover:border-olive-glow hover:bg-olive-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive"
+              className="interactive-transition flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-sm border border-olive bg-olive text-background hover:border-olive-glow hover:bg-olive-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive"
             >
               {isPlaying ? (
                 <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden>

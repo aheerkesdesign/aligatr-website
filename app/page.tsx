@@ -1,11 +1,16 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import ContactForm from "./components/ContactForm";
 import LanguageSwitcher from "./components/LanguageSwitcher";
 import LiveGallery from "./components/LiveGallery";
 import MixCards from "./components/MixCards";
+import SectionNav from "./components/SectionNav";
 import { useLanguage } from "./i18n/LanguageProvider";
+
+const socialIconClass =
+  "interactive-transition flex h-10 w-10 items-center justify-center rounded-sm text-muted hover:text-olive-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive";
 
 const socials = [
   {
@@ -48,6 +53,7 @@ const socials = [
 
 export default function Home() {
   const { t } = useLanguage();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinks = [
     { href: "#about", label: t.nav.about },
@@ -56,18 +62,34 @@ export default function Home() {
     { href: "#contact", label: t.nav.contact },
   ];
 
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setMenuOpen(false);
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen]);
+
+  useEffect(() => {
+    function onResize() {
+      if (window.matchMedia("(min-width: 768px)").matches) {
+        setMenuOpen(false);
+      }
+    }
+
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   return (
     <>
-      <div className="sticky top-0 z-50">
-        <div className="border-b border-border/80 bg-[#0e0e0e]">
-          <div className="mx-auto flex h-10 max-w-6xl items-center justify-end px-5 sm:px-8">
-            <LanguageSwitcher />
-          </div>
-        </div>
-
-        <header className="border-b border-border/80 bg-[#121212]/90 backdrop-blur-md">
-          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:h-[4.25rem] sm:px-8">
-            <a href="#top" className="group flex items-center gap-3">
+      <header className="sticky top-0 z-50 border-b border-border/80 bg-[#121212]/90 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-6xl items-center px-5 sm:h-[4.25rem] sm:px-8">
+          <div className="flex min-w-0 flex-1 items-center justify-start">
+            <a href="#top" className="group flex shrink-0 items-center gap-3">
               <Image
                 src="/aligatr-logo-text.svg"
                 alt="ALIGATR"
@@ -87,49 +109,87 @@ export default function Home() {
                 aria-hidden
               />
             </a>
+          </div>
 
+          <SectionNav links={navLinks} ariaLabel={t.nav.primary} />
+
+          <div className="flex min-w-0 flex-1 items-center justify-end">
+            <div className="hidden min-w-0 flex-1 items-center justify-center md:flex">
+              <a
+                href="#contact"
+                className="interactive-transition rounded-sm border border-olive px-3 py-2 text-[0.65rem] font-medium uppercase tracking-[0.18em] text-olive-glow hover:bg-olive hover:text-background sm:px-4 sm:text-xs"
+              >
+                {t.nav.book}
+              </a>
+            </div>
+            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+              <div className="hidden md:block">
+                <LanguageSwitcher />
+              </div>
+              <a
+                href="#contact"
+                className="interactive-transition hidden rounded-sm border border-olive px-3 py-2 text-[0.65rem] font-medium uppercase tracking-[0.18em] text-olive-glow hover:bg-olive hover:text-background sm:inline-block sm:px-4 sm:text-xs md:hidden"
+              >
+                {t.nav.book}
+              </a>
+              <button
+                type="button"
+                className="interactive-transition flex h-10 w-10 items-center justify-center rounded-sm text-muted hover:text-olive-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive md:hidden"
+                aria-expanded={menuOpen}
+                aria-controls="mobile-menu"
+                aria-label={menuOpen ? t.nav.closeMenu : t.nav.openMenu}
+                onClick={() => setMenuOpen((open) => !open)}
+              >
+                {menuOpen ? (
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden>
+                    <path d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12 5.7 16.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.89a1 1 0 0 0 1.41-1.41L13.41 12l4.89-4.89a1 1 0 0 0 0-1.4z" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden>
+                    <path d="M4 7h16v1.5H4V7zm0 4.25h16v1.5H4v-1.5zM4 15.5h16V17H4v-1.5z" />
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {menuOpen ? (
+          <div
+            id="mobile-menu"
+            className="border-t border-border/60 bg-[#121212]/98 md:hidden"
+          >
             <nav
-              aria-label={t.nav.primary}
-              className="hidden items-center gap-8 md:flex"
+              aria-label={t.nav.mobile}
+              className="mx-auto flex max-w-6xl flex-col gap-1 px-5 py-4 sm:px-8"
             >
               {navLinks.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
-                  className="text-xs font-medium uppercase tracking-[0.22em] text-muted transition-colors hover:text-olive-glow"
+                  className="interactive-transition rounded-sm px-2 py-3 text-sm font-medium uppercase tracking-[0.18em] text-muted hover:bg-surface hover:text-olive-glow"
+                  onClick={() => setMenuOpen(false)}
                 >
                   {link.label}
                 </a>
               ))}
-            </nav>
-
-            <a
-              href="#contact"
-              className="border border-olive px-3 py-2 text-[0.65rem] font-medium uppercase tracking-[0.18em] text-olive-glow transition-colors hover:bg-olive hover:text-background sm:px-4 sm:text-xs"
-            >
-              {t.nav.book}
-            </a>
-          </div>
-
-          <nav
-            aria-label={t.nav.mobile}
-            className="flex justify-center gap-6 border-t border-border/60 px-5 py-2.5 md:hidden"
-          >
-            {navLinks.map((link) => (
               <a
-                key={link.href}
-                href={link.href}
-                className="text-[0.65rem] font-medium uppercase tracking-[0.18em] text-muted transition-colors hover:text-olive-glow"
+                href="#contact"
+                className="interactive-transition mt-2 rounded-sm border border-olive px-3 py-3 text-center text-sm font-medium uppercase tracking-[0.18em] text-olive-glow hover:bg-olive hover:text-background"
+                onClick={() => setMenuOpen(false)}
               >
-                {link.label}
+                {t.nav.book}
               </a>
-            ))}
-          </nav>
-        </header>
-      </div>
+              <div className="mt-4 flex justify-center border-t border-border/60 pt-4">
+                <LanguageSwitcher />
+              </div>
+            </nav>
+          </div>
+        ) : null}
+      </header>
 
       <main id="top">
-        <section className="relative isolate min-h-[calc(100svh-6.5rem)] overflow-hidden border-b border-border">
+        <section className="relative isolate min-h-[calc(100svh-4.25rem)] overflow-hidden border-b border-border">
           <div
             className="pointer-events-none absolute inset-0"
             aria-hidden
@@ -144,8 +204,8 @@ export default function Home() {
             aria-hidden
           />
 
-          <div className="relative mx-auto flex min-h-[calc(100svh-6.5rem)] max-w-6xl flex-col items-center justify-center px-5 py-16 text-center sm:px-8 sm:py-20">
-            <div className="animate-float animate-rise w-full max-w-[min(80vw,38rem)]">
+          <div className="relative mx-auto flex min-h-[calc(100svh-4.25rem)] max-w-6xl flex-col items-center justify-center px-5 py-12 text-center sm:px-8 sm:py-16">
+            <div className="animate-float animate-rise w-full max-w-[min(78vw,34rem)]">
               <Image
                 src="/press-photo-front.png"
                 alt="ALIGATR"
@@ -156,36 +216,32 @@ export default function Home() {
               />
             </div>
 
-            <h1 className="animate-rise-delay-1 mt-6 w-full max-w-5xl px-1">
+            <h1 className="animate-rise-delay-1 mt-4 w-full max-w-5xl px-1 sm:mt-5">
               <Image
                 src="/aligatr-logo-text.svg"
                 alt="ALIGATR"
                 width={1200}
                 height={202}
-                className="mx-auto h-auto w-full max-w-[min(94vw,48rem)]"
+                className="mx-auto h-auto w-full max-w-[min(90vw,42rem)]"
                 priority
                 unoptimized
               />
             </h1>
 
-            <p className="animate-rise-delay-2 mt-5 max-w-xl text-base font-medium uppercase tracking-[0.28em] text-olive-glow sm:text-lg">
+            <p className="animate-rise-delay-2 mt-3 max-w-xl text-sm font-medium uppercase tracking-[0.22em] text-olive-glow sm:mt-4 sm:text-base sm:tracking-[0.24em]">
               {t.hero.tagline}
             </p>
 
-            <p className="animate-rise-delay-2 mt-4 max-w-md text-sm leading-relaxed text-muted sm:text-base">
-              {t.hero.supporting}
-            </p>
-
-            <div className="animate-rise-delay-3 mt-10 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:justify-center sm:gap-4">
+            <div className="animate-rise-delay-3 mt-7 flex w-full max-w-md flex-col gap-3 sm:mt-8 sm:max-w-none sm:flex-row sm:justify-center sm:gap-4">
               <a
                 href="#music"
-                className="border border-olive bg-olive px-8 py-3.5 text-center font-[family-name:var(--font-display)] text-xl tracking-[0.14em] text-background transition-colors hover:border-olive-glow hover:bg-olive-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive"
+                className="interactive-transition rounded-sm border border-olive bg-olive px-8 py-3.5 text-center font-[family-name:var(--font-display)] text-xl tracking-[0.14em] text-background hover:border-olive-glow hover:bg-olive-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive"
               >
                 {t.hero.listen}
               </a>
               <a
                 href="#contact"
-                className="border border-foreground/25 bg-transparent px-8 py-3.5 text-center font-[family-name:var(--font-display)] text-xl tracking-[0.14em] text-foreground transition-colors hover:border-olive hover:text-olive-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive"
+                className="interactive-transition rounded-sm border border-foreground/25 bg-transparent px-8 py-3.5 text-center font-[family-name:var(--font-display)] text-xl tracking-[0.14em] text-foreground hover:border-olive hover:text-olive-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive"
               >
                 {t.hero.book}
               </a>
@@ -195,7 +251,7 @@ export default function Home() {
 
         <section
           id="about"
-          className="scroll-mt-36 border-b border-border py-20 sm:py-28"
+          className="scroll-mt-24 border-b border-border py-20 sm:py-28"
         >
           <div className="mx-auto grid max-w-6xl gap-10 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.2fr] lg:items-start lg:gap-16">
             <div>
@@ -218,7 +274,7 @@ export default function Home() {
 
         <section
           id="media"
-          className="scroll-mt-36 border-b border-border bg-surface/40 py-20 sm:py-28"
+          className="scroll-mt-24 border-b border-border bg-surface/40 py-20 sm:py-28"
         >
           <div className="mx-auto max-w-6xl px-5 sm:px-8">
             <div className="mb-12 max-w-2xl">
@@ -239,7 +295,7 @@ export default function Home() {
 
         <section
           id="music"
-          className="scroll-mt-36 border-b border-border py-20 sm:py-28"
+          className="scroll-mt-24 border-b border-border py-20 sm:py-28"
         >
           <div className="mx-auto max-w-6xl px-5 sm:px-8">
             <div className="mb-12 max-w-2xl">
@@ -259,7 +315,7 @@ export default function Home() {
 
         <section
           id="contact"
-          className="scroll-mt-36 border-b border-border py-20 sm:py-28"
+          className="scroll-mt-24 border-b border-border py-20 sm:py-28"
         >
           <div className="mx-auto grid max-w-6xl gap-14 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
             <div>
@@ -281,7 +337,7 @@ export default function Home() {
                   <span className="text-xs uppercase tracking-[0.2em] text-muted">
                     {t.contact.email}
                   </span>
-                  <span className="text-lg text-foreground group-hover:text-olive-glow">
+                  <span className="interactive-transition text-lg text-foreground group-hover:text-olive-glow">
                     aligatr.music@gmail.com
                   </span>
                 </a>
@@ -290,7 +346,7 @@ export default function Home() {
                   <span className="text-xs uppercase tracking-[0.2em] text-muted">
                     {t.contact.social}
                   </span>
-                  <div className="mt-3 flex gap-3">
+                  <div className="mt-2 flex gap-1">
                     {socials.map((social) => (
                       <a
                         key={social.name}
@@ -298,7 +354,7 @@ export default function Home() {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={social.name}
-                        className="flex h-11 w-11 items-center justify-center border border-border text-muted transition-colors hover:border-olive hover:text-olive-glow"
+                        className={socialIconClass}
                       >
                         {social.icon}
                       </a>
@@ -313,15 +369,15 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="bg-surface py-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-5 sm:flex-row sm:px-8">
+      <footer className="bg-surface py-8">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-5 sm:flex-row sm:justify-between sm:px-8">
           <p className="font-[family-name:var(--font-display)] text-xl tracking-[0.16em] text-foreground">
             ALIGATR
           </p>
-          <p className="text-xs uppercase tracking-[0.18em] text-muted">
+          <p className="text-center text-xs tracking-wide text-muted sm:text-left">
             © {new Date().getFullYear()} ALIGATR. {t.footer.rights}
           </p>
-          <div className="flex gap-3">
+          <div className="flex gap-1">
             {socials.map((social) => (
               <a
                 key={social.name}
@@ -329,7 +385,7 @@ export default function Home() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={social.name}
-                className="flex h-10 w-10 items-center justify-center border border-border text-muted transition-colors hover:border-olive hover:text-olive-glow"
+                className={socialIconClass}
               >
                 {social.icon}
               </a>

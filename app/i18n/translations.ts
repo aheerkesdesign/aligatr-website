@@ -12,6 +12,8 @@ export const translations = {
       book: "Boek",
       primary: "Hoofdnavigatie",
       mobile: "Mobiele navigatie",
+      openMenu: "Menu openen",
+      closeMenu: "Menu sluiten",
     },
     hero: {
       tagline: "Allround DJ | House | Hardstyle | Reggaeton",
@@ -122,6 +124,8 @@ export const translations = {
       book: "Book",
       primary: "Primary",
       mobile: "Mobile",
+      openMenu: "Open menu",
+      closeMenu: "Close menu",
     },
     hero: {
       tagline: "All-Round DJ | House | Hardstyle | Reggaeton",
