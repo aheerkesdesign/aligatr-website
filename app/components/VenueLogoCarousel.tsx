@@ -117,7 +117,7 @@ export default function VenueLogoCarousel({
 
   return (
     <div
-      className="venue-logo-mask relative -mx-5 cursor-grab overflow-hidden active:cursor-grabbing sm:-mx-8"
+      className="venue-logo-mask relative -mx-5 overflow-hidden sm:-mx-8"
       style={{ touchAction: "pan-y" }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
@@ -125,10 +125,6 @@ export default function VenueLogoCarousel({
       onPointerCancel={endDrag}
       onPointerLeave={(event) => {
         if (draggingRef.current) endDrag(event);
-      }}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => {
-        if (!draggingRef.current) setPaused(false);
       }}
       role="region"
       aria-roledescription="carousel"
@@ -141,14 +137,14 @@ export default function VenueLogoCarousel({
         {loopItems.map((venue, index) => (
           <figure
             key={`${venue.name}-${index}`}
-            className="group flex h-14 w-[9.5rem] shrink-0 items-center justify-center sm:h-16 sm:w-[11rem]"
+            className="group flex h-14 shrink-0 items-center sm:h-16"
           >
             <Image
               src={venue.src}
               alt={venue.name}
               width={176}
               height={64}
-              className="pointer-events-none h-full w-full select-none object-contain opacity-45 grayscale transition-opacity duration-200 group-hover:opacity-80"
+              className="pointer-events-none h-full w-auto max-w-[11rem] select-none object-contain opacity-45 grayscale transition-opacity duration-200 group-hover:opacity-80 sm:max-w-[13rem]"
               draggable={false}
               unoptimized
             />
