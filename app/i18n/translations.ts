@@ -71,6 +71,12 @@ export const translations = {
       trackFallback: "ALIGATR mixtape via SoundCloud.",
       nowPlaying: "Nu aan het spelen",
     },
+    venues: {
+      eyebrow: "Locaties",
+      title: "Gedraaid bij",
+      intro: "Locaties en events waar ALIGATR heeft gedraaid.",
+      carousel: "Venue-logo’s",
+    },
     contact: {
       eyebrow: "Boeken",
       title: "Boek ALIGATR",
@@ -185,6 +191,12 @@ export const translations = {
       openPlaylist: "Open playlist on SoundCloud",
       trackFallback: "ALIGATR mixtape via SoundCloud.",
       nowPlaying: "Now playing",
+    },
+    venues: {
+      eyebrow: "Venues",
+      title: "Played at",
+      intro: "Venues and events where ALIGATR has performed.",
+      carousel: "Venue logos",
     },
     contact: {
       eyebrow: "Booking",
