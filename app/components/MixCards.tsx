@@ -72,6 +72,20 @@ function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T) {
+  return new Promise<T>((resolve) => {
+    let settled = false;
+    const finish = (value: T) => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(timer);
+      resolve(value);
+    };
+    const timer = window.setTimeout(() => finish(fallback), ms);
+    promise.then(finish, () => finish(fallback));
+  });
+}
+
 function loadWidgetApi() {
   if (window.SC?.Widget) return Promise.resolve();
 
@@ -84,10 +98,26 @@ function loadWidgetApi() {
         resolve();
         return;
       }
-      existing.addEventListener("load", () => resolve(), { once: true });
+
+      const timer = window.setTimeout(() => {
+        reject(new Error("Widget API failed"));
+      }, 8000);
+
+      existing.addEventListener(
+        "load",
+        () => {
+          window.clearTimeout(timer);
+          if (window.SC?.Widget) resolve();
+          else reject(new Error("Widget API failed"));
+        },
+        { once: true },
+      );
       existing.addEventListener(
         "error",
-        () => reject(new Error("Widget API failed")),
+        () => {
+          window.clearTimeout(timer);
+          reject(new Error("Widget API failed"));
+        },
         { once: true },
       );
     });
@@ -103,20 +133,19 @@ function loadWidgetApi() {
   });
 }
 
-function getSounds(widget: SoundCloudWidget) {
-  return new Promise<SoundCloudSound[]>((resolve) => {
-    widget.getSounds((sounds) => resolve(sounds ?? []));
-  });
+function getSounds(widget: SoundCloudWidget, timeoutMs = 1000) {
+  return withTimeout(
+    new Promise<SoundCloudSound[]>((resolve) => {
+      widget.getSounds((sounds) => resolve(sounds ?? []));
+    }),
+    timeoutMs,
+    [],
+  );
 }
 
-function getCurrentSound(widget: SoundCloudWidget) {
-  return new Promise<SoundCloudSound | null>((resolve) => {
-    widget.getCurrentSound((sound) => resolve(sound ?? null));
-  });
-}
-
-async function waitForSounds(widget: SoundCloudWidget, attempts = 80) {
-  for (let i = 0; i < attempts; i++) {
+async function waitForSounds(widget: SoundCloudWidget, budgetMs = 12000) {
+  const deadline = Date.now() + budgetMs;
+  while (Date.now() < deadline) {
     const sounds = await getSounds(widget);
     if (sounds.length > 0) return sounds;
     await wait(200);
@@ -124,40 +153,15 @@ async function waitForSounds(widget: SoundCloudWidget, attempts = 80) {
   return [] as SoundCloudSound[];
 }
 
-async function hydratePlaylist(widget: SoundCloudWidget) {
-  const initial = await waitForSounds(widget);
-  if (!initial.length) return [] as SoundCloudSound[];
-
-  widget.setVolume(0);
-  const hydrated: SoundCloudSound[] = [];
-
-  for (let index = 0; index < initial.length; index++) {
-    const existing = initial[index];
-    if (existing?.title && existing.duration) {
-      hydrated.push(existing);
-      continue;
-    }
-
-    widget.skip(index);
-    let sound: SoundCloudSound | null = null;
-    for (let attempt = 0; attempt < 20; attempt++) {
-      await wait(150);
-      sound = await getCurrentSound(widget);
-      if (sound?.title) break;
-    }
-    hydrated.push(sound ?? existing ?? { title: `Mix ${index + 1}` });
-  }
-
-  widget.skip(0);
-  widget.pause();
-  widget.setVolume(100);
-  return hydrated;
-}
-
 function toMixTrack(sound: SoundCloudSound, index: number): MixTrack {
-  const title = sound.title?.trim() || `Mix ${index + 1}`;
-  const description = sound.description?.trim() || "";
-  const durationMs = sound.duration ?? 0;
+  const rawTitle = typeof sound.title === "string" ? sound.title.trim() : "";
+  const title = rawTitle || `Mix ${index + 1}`;
+  const description =
+    typeof sound.description === "string" ? sound.description.trim() : "";
+  const durationMs =
+    typeof sound.duration === "number" && sound.duration > 0
+      ? sound.duration
+      : 0;
 
   return {
     index,
@@ -165,7 +169,7 @@ function toMixTrack(sound: SoundCloudSound, index: number): MixTrack {
     title,
     description,
     durationMs,
-    durationLabel: formatDuration(durationMs),
+    durationLabel: durationMs > 0 ? formatDuration(durationMs) : "--:--",
   };
 }
 
@@ -221,12 +225,10 @@ export default function MixCards() {
           started = true;
           try {
             // Playlist metadata can lag behind READY on a cold SoundCloud load.
-            let sounds: SoundCloudSound[] = [];
-            for (let attempt = 0; attempt < 3; attempt++) {
-              sounds = await hydratePlaylist(widget);
-              if (cancelled || sounds.length) break;
-              await wait(500);
-            }
+            // Do not skip/play through tracks to hydrate — mobile browsers often
+            // never answer those Widget API calls without a user gesture, which
+            // left this UI stuck on "Loading mixes…".
+            const sounds = await waitForSounds(widget);
             if (cancelled) return;
             if (!sounds.length) {
               setStatus("error");
@@ -308,6 +310,30 @@ export default function MixCards() {
     setPlayingIndex(index);
     setPositionMs(0);
     setDurationMs(tracks[index]?.durationMs ?? 0);
+
+    // User gesture unlocks full track metadata that getSounds often stubs out.
+    widget.getCurrentSound((sound) => {
+      if (!sound) return;
+      const next = toMixTrack(sound, index);
+      setTracks((prev) =>
+        prev.map((track, i) =>
+          i === index
+            ? {
+                ...track,
+                title:
+                  next.title === `Mix ${index + 1}` ? track.title : next.title,
+                description: next.description || track.description,
+                durationMs: next.durationMs || track.durationMs,
+                durationLabel:
+                  next.durationMs > 0
+                    ? next.durationLabel
+                    : track.durationLabel,
+              }
+            : track,
+        ),
+      );
+      if (next.durationMs > 0) setDurationMs(next.durationMs);
+    });
   }
 
   function toggleActive() {
@@ -360,7 +386,9 @@ export default function MixCards() {
         loading="eager"
         onLoad={() => setIframeLoaded(true)}
         src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(PLAYLIST_URL)}&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false&buying=false&sharing=false&download=false`}
-        className="pointer-events-none absolute h-px w-px opacity-0"
+        // Keep a real box in the viewport. 1×1 / off-screen iframes often never
+        // finish initializing the SoundCloud Widget API on mobile browsers.
+        className="pointer-events-none fixed left-0 top-0 -z-10 h-[166px] w-[100px] opacity-0"
         tabIndex={-1}
         aria-hidden
       />
