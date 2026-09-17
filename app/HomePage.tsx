@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import ContactForm from "./components/ContactForm";
+import FadeIn from "./components/FadeIn";
 import LanguageSwitcher from "./components/LanguageSwitcher";
 import LiveGallery from "./components/LiveGallery";
 import MixCards from "./components/MixCards";
@@ -191,34 +192,24 @@ export default function HomePage({ venues }: { venues: Venue[] }) {
       </header>
 
       <main id="top">
-        <section className="relative isolate min-h-[calc(100svh-4.25rem)] overflow-hidden border-b border-border">
-          <div
-            className="pointer-events-none absolute inset-0"
+        <section className="relative isolate min-h-[100dvh] overflow-hidden border-b border-border">
+          <Image
+            src="/press-photo-front.png"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
             aria-hidden
-            style={{
-              background:
-                "radial-gradient(ellipse 80% 60% at 50% 20%, rgba(107,112,67,0.28), transparent 60%), radial-gradient(ellipse 50% 40% at 80% 80%, rgba(90,98,55,0.18), transparent 55%), linear-gradient(180deg, #121212 0%, #161616 45%, #121212 100%)",
-            }}
+          />
+          <div
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/55 to-background/25"
+            aria-hidden
           />
           <div className="noise-overlay pointer-events-none absolute inset-0" aria-hidden />
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background to-transparent"
-            aria-hidden
-          />
 
-          <div className="relative mx-auto flex min-h-[calc(100svh-4.25rem)] max-w-6xl flex-col items-center justify-center px-5 py-12 text-center sm:px-8 sm:py-16">
-            <div className="animate-float animate-rise w-full max-w-[min(78vw,34rem)]">
-              <Image
-                src="/press-photo-front.png"
-                alt="ALIGATR"
-                width={1200}
-                height={800}
-                className="mx-auto h-auto w-full object-cover"
-                priority
-              />
-            </div>
-
-            <h1 className="animate-rise-delay-1 mt-4 w-full max-w-5xl px-1 sm:mt-5">
+          <div className="relative mx-auto flex min-h-[100dvh] max-w-6xl flex-col items-center justify-end px-5 pb-16 pt-24 text-center sm:px-8 sm:pb-20">
+            <h1 className="animate-rise w-full max-w-5xl px-1">
               <Image
                 src="/aligatr-logo-text.svg"
                 alt="ALIGATR"
@@ -230,11 +221,11 @@ export default function HomePage({ venues }: { venues: Venue[] }) {
               />
             </h1>
 
-            <p className="animate-rise-delay-2 mt-3 max-w-xl text-sm font-medium uppercase tracking-[0.22em] text-olive-glow sm:mt-4 sm:text-base sm:tracking-[0.24em]">
+            <p className="animate-rise-delay-1 mt-3 max-w-xl text-sm font-medium uppercase tracking-[0.22em] text-olive-glow sm:mt-4 sm:text-base sm:tracking-[0.24em]">
               {t.hero.tagline}
             </p>
 
-            <div className="animate-rise-delay-3 mt-7 flex w-full max-w-md flex-col gap-3 sm:mt-8 sm:max-w-none sm:flex-row sm:justify-center sm:gap-4">
+            <div className="animate-rise-delay-2 mt-7 flex w-full max-w-md flex-col gap-3 sm:mt-8 sm:max-w-none sm:flex-row sm:justify-center sm:gap-4">
               <a
                 href="#music"
                 className="interactive-transition rounded-sm border border-olive bg-olive px-8 py-3.5 text-center font-[family-name:var(--font-display)] text-xl tracking-[0.14em] text-background hover:border-olive-glow hover:bg-olive-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive"
@@ -255,7 +246,7 @@ export default function HomePage({ venues }: { venues: Venue[] }) {
           id="about"
           className="scroll-mt-24 border-b border-border py-20 sm:py-28"
         >
-          <div className="mx-auto grid max-w-6xl gap-10 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.2fr] lg:items-start lg:gap-16">
+          <FadeIn className="mx-auto grid max-w-6xl gap-10 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.2fr] lg:items-start lg:gap-16">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.28em] text-olive-glow">
                 {t.about.eyebrow}
@@ -271,14 +262,14 @@ export default function HomePage({ venues }: { venues: Venue[] }) {
                 <p key={index}>{paragraph}</p>
               ))}
             </div>
-          </div>
+          </FadeIn>
         </section>
 
         <section
           id="media"
           className="scroll-mt-24 border-b border-border bg-surface/40 py-20 sm:py-28"
         >
-          <div className="mx-auto max-w-6xl px-5 sm:px-8">
+          <FadeIn className="mx-auto max-w-6xl px-5 sm:px-8">
             <div className="mb-12 max-w-2xl">
               <p className="text-xs font-medium uppercase tracking-[0.28em] text-olive-glow">
                 {t.live.eyebrow}
@@ -292,14 +283,14 @@ export default function HomePage({ venues }: { venues: Venue[] }) {
             </div>
 
             <LiveGallery photos={t.live.photos} />
-          </div>
+          </FadeIn>
         </section>
 
         <section
           id="music"
           className="scroll-mt-24 border-b border-border py-20 sm:py-28"
         >
-          <div className="mx-auto max-w-6xl px-5 sm:px-8">
+          <FadeIn className="mx-auto max-w-6xl px-5 sm:px-8">
             <div className="mb-12 max-w-2xl">
               <p className="text-xs font-medium uppercase tracking-[0.28em] text-olive-glow">
                 {t.music.eyebrow}
@@ -312,14 +303,14 @@ export default function HomePage({ venues }: { venues: Venue[] }) {
               </p>
             </div>
             <MixCards />
-          </div>
+          </FadeIn>
         </section>
 
         <section
           id="venues"
           className="scroll-mt-24 border-b border-border bg-surface/40 py-16 sm:py-20"
         >
-          <div className="mx-auto max-w-6xl px-5 sm:px-8">
+          <FadeIn className="mx-auto max-w-6xl px-5 sm:px-8">
             <div className="mb-10 max-w-2xl">
               <p className="text-xs font-medium uppercase tracking-[0.28em] text-olive-glow">
                 {t.venues.eyebrow}
@@ -332,14 +323,14 @@ export default function HomePage({ venues }: { venues: Venue[] }) {
               </p>
             </div>
             <VenueLogoCarousel items={venues} ariaLabel={t.venues.carousel} />
-          </div>
+          </FadeIn>
         </section>
 
         <section
           id="contact"
           className="scroll-mt-24 border-b border-border py-20 sm:py-28"
         >
-          <div className="mx-auto grid max-w-6xl gap-14 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+          <FadeIn className="mx-auto grid max-w-6xl gap-14 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.28em] text-olive-glow">
                 {t.contact.eyebrow}
@@ -387,7 +378,7 @@ export default function HomePage({ venues }: { venues: Venue[] }) {
             </div>
 
             <ContactForm />
-          </div>
+          </FadeIn>
         </section>
       </main>
 
