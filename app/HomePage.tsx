@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ContactForm from "./components/ContactForm";
 import FadeIn from "./components/FadeIn";
 import LanguageSwitcher from "./components/LanguageSwitcher";
@@ -57,6 +57,7 @@ const socials = [
 export default function HomePage({ venues }: { venues: Venue[] }) {
   const { t } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
+  const heroRef = useRef<HTMLElement>(null);
 
   const navLinks = [
     { href: "#about", label: t.nav.about },
@@ -85,6 +86,33 @@ export default function HomePage({ venues }: { venues: Venue[] }) {
 
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) return;
+
+    const viewport = window.visualViewport;
+
+    const setHeroHeight = () => {
+      const height =
+        viewport && Math.abs(viewport.scale - 1) < 0.02
+          ? viewport.height
+          : window.innerHeight;
+      hero.style.setProperty("--hero-height", `${height}px`);
+    };
+
+    setHeroHeight();
+    requestAnimationFrame(() => {
+      hero.classList.add("hero-ready");
+    });
+    window.addEventListener("resize", setHeroHeight);
+    viewport?.addEventListener("resize", setHeroHeight);
+
+    return () => {
+      window.removeEventListener("resize", setHeroHeight);
+      viewport?.removeEventListener("resize", setHeroHeight);
+    };
   }, []);
 
   return (
@@ -192,7 +220,10 @@ export default function HomePage({ venues }: { venues: Venue[] }) {
       </header>
 
       <main id="top">
-        <section className="relative isolate min-h-[100dvh] overflow-hidden border-b border-border bg-background">
+        <section
+          ref={heroRef}
+          className="hero-viewport relative isolate overflow-hidden border-b border-border bg-background"
+        >
           <Image
             src="/press-photo-front.jpg"
             alt=""
@@ -205,7 +236,7 @@ export default function HomePage({ venues }: { venues: Venue[] }) {
             unoptimized
           />
 
-          <div className="relative mx-auto flex min-h-[100dvh] max-w-6xl flex-col items-center justify-end px-5 pb-16 pt-24 text-center sm:px-8 sm:pb-20">
+          <div className="hero-viewport relative mx-auto flex max-w-6xl flex-col items-center justify-end px-5 pb-16 pt-24 text-center sm:px-8 sm:pb-20">
             <h1 className="animate-rise w-full max-w-5xl px-1">
               <Image
                 src="/aligatr-logo-text.svg"

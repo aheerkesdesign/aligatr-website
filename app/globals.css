@@ -133,6 +133,11 @@ body {
     transform: none;
     transition: none;
   }
+
+  .hero-viewport.hero-ready,
+  .hero-viewport.hero-ready .hero-viewport {
+    transition: none;
+  }
 }
 
 .eq-bar {
@@ -154,6 +159,21 @@ body {
     #000 92%,
     transparent
   );
+}
+
+/*
+  Hero tracks the dynamic viewport (toolbar show/hide) like 100dvh,
+  but height is applied as a pixel value so it can ease over 100ms.
+  `--hero-height` is set from visualViewport; 100dvh is the first-paint fallback.
+*/
+.hero-viewport {
+  min-height: 100dvh;
+  min-height: var(--hero-height, 100dvh);
+}
+
+.hero-viewport.hero-ready,
+.hero-viewport.hero-ready .hero-viewport {
+  transition: min-height 100ms ease-out;
 }
 
 /* Soft bottom edge on the cropped hero frame (same technique as gallery sides). */
