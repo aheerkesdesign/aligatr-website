@@ -112,6 +112,13 @@ body {
   transform: translateY(0);
 }
 
+/* Drop transform after the fade finishes so `position: fixed` children
+   (e.g. the music player) are not trapped in this containing block. */
+.fade-in-section.is-settled {
+  transform: none;
+  will-change: auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-rise,
   .animate-rise-delay-1,
