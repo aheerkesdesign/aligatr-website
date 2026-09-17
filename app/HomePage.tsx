@@ -192,21 +192,18 @@ export default function HomePage({ venues }: { venues: Venue[] }) {
       </header>
 
       <main id="top">
-        <section className="relative isolate min-h-[100dvh] overflow-hidden border-b border-border">
+        <section className="relative isolate min-h-[100dvh] overflow-hidden border-b border-border bg-background">
           <Image
             src="/press-photo-front.jpg"
             alt=""
             fill
             priority
             sizes="100vw"
-            className="object-cover object-center"
+            quality={90}
+            className="hero-photo object-cover object-center"
             aria-hidden
+            unoptimized
           />
-          <div
-            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/55 to-background/25"
-            aria-hidden
-          />
-          <div className="noise-overlay pointer-events-none absolute inset-0" aria-hidden />
 
           <div className="relative mx-auto flex min-h-[100dvh] max-w-6xl flex-col items-center justify-end px-5 pb-16 pt-24 text-center sm:px-8 sm:pb-20">
             <h1 className="animate-rise w-full max-w-5xl px-1">
