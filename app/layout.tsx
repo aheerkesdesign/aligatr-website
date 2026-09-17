@@ -53,9 +53,9 @@ export const metadata: Metadata = {
     description,
     images: [
       {
-        url: "/press-photo-front.png",
-        width: 1200,
-        height: 800,
+        url: "/press-photo-front.jpg",
+        width: 1024,
+        height: 764,
         alt: "ALIGATR",
       },
     ],
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title,
     description,
-    images: ["/press-photo-front.png"],
+    images: ["/press-photo-front.jpg"],
   },
   robots: {
     index: true,

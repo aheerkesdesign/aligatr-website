@@ -194,7 +194,7 @@ export default function HomePage({ venues }: { venues: Venue[] }) {
       <main id="top">
         <section className="relative isolate min-h-[100dvh] overflow-hidden border-b border-border">
           <Image
-            src="/press-photo-front.png"
+            src="/press-photo-front.jpg"
             alt=""
             fill
             priority
