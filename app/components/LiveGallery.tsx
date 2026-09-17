@@ -186,7 +186,7 @@ export default function LiveGallery({
 
   return (
     <div
-      className="relative -mx-5 cursor-grab overflow-hidden active:cursor-grabbing sm:-mx-8"
+      className="venue-logo-mask relative -mx-5 cursor-grab overflow-hidden active:cursor-grabbing sm:-mx-8"
       style={{ touchAction: "pan-y" }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
